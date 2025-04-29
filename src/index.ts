@@ -17,8 +17,8 @@ router.get("/:shortcode", handleRedirect);
 // 在所有以 /api/ 开头的路由前应用 authenticateApiRequest 中间件
 router.all("/api/*", authenticateApiRequest);
 
-// POST /api/create - 创建短链接
-router.post("/api/create", handleCreateLink);
+// POST /api/links - 创建短链接
+router.post("/api/links", handleCreateLink);
 
 // PATCH /api/links/:shortcode - 修改短链接
 router.patch("/api/links/:shortcode", handleUpdateLink);

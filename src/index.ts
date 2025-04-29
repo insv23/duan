@@ -4,11 +4,16 @@ import { AutoRouter } from "itty-router";
 import { handleRedirect } from "./handlers/redirect";
 import { handleCreateLink } from "./handlers/createLink";
 import { handleUpdateLink } from "./handlers/updateLink";
+import { authenticateApiRequest } from "./middleware/auth";
 
 const router = AutoRouter();
 
 // GET /:shortcode - 短链接重定向
 router.get("/:shortcode", handleRedirect);
+
+// --- API 路由 (需要鉴权) ---
+// 在所有以 /api/ 开头的路由前应用 authenticateApiRequest 中间件
+router.all("/api/*", authenticateApiRequest);
 
 // POST /api/create - 创建短链接
 router.post("/api/create", handleCreateLink);

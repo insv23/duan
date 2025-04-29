@@ -5,14 +5,14 @@ import { errorResponse } from "../utils/response"; // 从 utils 目录导入错�
 
 // 负责处理短码重定向的逻辑
 export async function handleRedirect(
-	{ params }: { params: { code?: string } }, // itty-router 提供的参数结构
+	{ params }: { params: { shortcode?: string } }, // itty-router 提供的参数结构
 	env: Env, // 导入并使用 Env 类型
 ): Promise<Response> {
-	const short_code = params.code;
+	const short_code = params.shortcode;
 
 	//  short_code 格式验证，例如不允许包含 /
 	if (!short_code || short_code.includes("/")) {
-		return errorResponse("Invalid short code format", 400); // Bad Request
+		return errorResponse("Invalid short_code format", 400); // Bad Request
 	}
 
 	try {
@@ -25,7 +25,7 @@ export async function handleRedirect(
 
 		// 如果未找到链接或链接未启用
 		if (!link || link.is_enabled !== 1) {
-			return errorResponse("Short code not found or disabled.", 404); // Not Found
+			return errorResponse("Short_code not found or disabled.", 404); // Not Found
 		}
 
 		// 异步更新访问统计和最后访问时间

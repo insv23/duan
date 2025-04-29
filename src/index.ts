@@ -7,8 +7,8 @@ import { handleUpdateLink } from "./handlers/updateLink";
 
 const router = AutoRouter();
 
-// GET /:code - 短链接重定向
-router.get("/:code", handleRedirect);
+// GET /:shortcode - 短链接重定向
+router.get("/:shortcode", handleRedirect);
 
 // POST /api/create - 创建短链接
 router.post("/api/create", handleCreateLink);

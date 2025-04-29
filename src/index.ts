@@ -5,6 +5,7 @@ import { handleRedirect } from "./handlers/redirect";
 import { handleCreateLink } from "./handlers/createLink";
 import { handleUpdateLink } from "./handlers/updateLink";
 import { authenticateApiRequest } from "./middleware/auth";
+import { handleListLinks } from "./handlers/listLinks";
 
 const router = AutoRouter();
 
@@ -20,5 +21,8 @@ router.post("/api/create", handleCreateLink);
 
 // PATCH /api/links/:shortcode - 修改短链接
 router.patch("/api/links/:shortcode", handleUpdateLink);
+
+// GET /api/links - 获取所有链接列表
+router.get("/api/links", handleListLinks);
 
 export default router;

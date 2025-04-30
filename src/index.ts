@@ -8,6 +8,7 @@ import { authenticateApiRequest } from "./middleware/auth";
 import { handleListLinks } from "./handlers/listLinks";
 import { handleDeleteLink } from "./handlers/deleteLink";
 import { handleGetLink } from "./handlers/getLink";
+import { handleListShortcodes } from "./handlers/listShortcodes";
 
 const router = AutoRouter();
 
@@ -32,5 +33,8 @@ router.delete("/api/links/:shortcode", handleDeleteLink);
 
 // GET /api/links/:shortcode - 获取特定链接
 router.get("/api/links/:shortcode", handleGetLink);
+
+// GET /api/shortcodes - 获取所有 shortcode 列表 (只返回 shortcode 字符串数组)
+router.get("/api/shortcodes", handleListShortcodes);
 
 export default router;

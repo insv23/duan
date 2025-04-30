@@ -7,6 +7,7 @@ import { handleUpdateLink } from "./handlers/updateLink";
 import { authenticateApiRequest } from "./middleware/auth";
 import { handleListLinks } from "./handlers/listLinks";
 import { handleDeleteLink } from "./handlers/deleteLink";
+import { handleGetLink } from "./handlers/getLink";
 
 const router = AutoRouter();
 
@@ -28,5 +29,8 @@ router.get("/api/links", handleListLinks);
 
 // DELETE /api/links/:shortcode - 删除特定链接
 router.delete("/api/links/:shortcode", handleDeleteLink);
+
+// GET /api/links/:shortcode - 获取特定链接
+router.get("/api/links/:shortcode", handleGetLink);
 
 export default router;

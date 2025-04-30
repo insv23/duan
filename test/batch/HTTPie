@@ -1,0 +1,3 @@
+http POST https://your-worker-url.workers.dev/api/links/batch \
+  Authorization:"Bearer your-api-token" \
+  @batch-links.json

@@ -1,0 +1,27 @@
+[
+    {
+      "url": "https://example.com/page1",
+      "description": "Example page 1"
+    },
+    {
+      "short_code": "custom1",
+      "url": "https://example.com/page2",
+      "description": "Example page with custom shortcode"
+    },
+    {
+      "url": "https://example.com/page3"
+    },
+    {
+      "short_code": "invalid/code",
+      "url": "https://example.com/page4"
+    },
+    {
+      "short_code": "custom2",
+      "url": "not-a-valid-url"
+    },
+    {
+        "short_code": "custom1",
+        "url": "https://example.com/page5",
+        "description": "Example page with existing custom shortcode"
+    }
+]

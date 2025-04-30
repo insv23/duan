@@ -9,6 +9,7 @@ import { handleListLinks } from "./handlers/listLinks";
 import { handleDeleteLink } from "./handlers/deleteLink";
 import { handleGetLink } from "./handlers/getLink";
 import { handleListShortcodes } from "./handlers/listShortcodes";
+import { handleCreateBatchLinks } from "./handlers/createBatchLinks";
 
 const router = AutoRouter();
 
@@ -36,5 +37,8 @@ router.get("/api/links/:shortcode", handleGetLink);
 
 // GET /api/shortcodes - 获取所有 shortcode 列表 (只返回 shortcode 字符串数组)
 router.get("/api/shortcodes", handleListShortcodes);
+
+// POST /api/links/batch - 批量创建短链接
+router.post("/api/links/batch", handleCreateBatchLinks);
 
 export default router;

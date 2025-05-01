@@ -41,22 +41,71 @@
 
 ### Installation
 
-1. Create a D1 database in Cloudflare and copy the database ID.
+1. Create a D1 database in Cloudflare.
+   <img width="1269" alt="image" src="https://github.com/user-attachments/assets/e12d5a1f-44d8-4fd2-9129-cad34df37bda" />
+	 <img width="743" alt="image" src="https://github.com/user-attachments/assets/d39427c1-ab96-426b-8555-90e4c2e9c78c" />
 
-2. Fork the repository to your GitHub account.
+2. Execute SQL statements in Console
+   ```sql
+   DROP TABLE IF EXISTS links;
+   CREATE TABLE links (
+   	short_code TEXT PRIMARY KEY,
+		original_url TEXT NOT NULL,
+		description TEXT,
+		is_enabled INTEGER DEFAULT 1,
+		created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+		last_visited_at TEXT,
+		visit_count INTEGER DEFAULT 0
+   );
+   ```
+	<img width="1014" alt="image" src="https://github.com/user-attachments/assets/e07158f0-a50f-4ea4-ae5a-f279e1b75da6" />
+ 	<img width="990" alt="image" src="https://github.com/user-attachments/assets/3c453c0e-60a0-4c97-ba50-0ce707a6b844" />
 
-3. Edit the `wrangler.jsonc` file and replace the `database_id` with your D1 database ID.
+3. Copy the D1 Database ID.
+   <img width="980" alt="image" src="https://github.com/user-attachments/assets/84656de1-20ca-4c11-85c9-dc676a5b7b08" />
 
-3. Create a project in Cloudflare Workers.
+4. [Fork](https://github.com/insv23/duan/fork) the repository to your GitHub account.
+   <img width="1225" alt="image" src="https://github.com/user-attachments/assets/78484a50-96ee-4733-994f-d49e9bb64149" />
 
-4. Select the "Import from GitHub" option and select your forked repository.
 
-5. Set API_TOKEN in Cloudflare Workers.
+5. Edit the `wrangler.jsonc` file and replace the `database_name` whit `duan-db` and the `database_id` with your D1 database ID.
+   <img width="1277" alt="image" src="https://github.com/user-attachments/assets/5f9ffc73-99e6-4ebd-a86e-9087329b4114" />
+	 <img width="728" alt="image" src="https://github.com/user-attachments/assets/cc51871a-4e5c-48bb-ad03-51eaa93446df" />
 
-6. Cloudflare provides a free domain for your worker, e.g., `your-worker-name.workers.dev`.
-You can test it with cURL or HTTPie.
+6. Create a project in Cloudflare Workers, select your forked repository.
+   <img width="948" alt="image" src="https://github.com/user-attachments/assets/688b5ff8-f8a0-4b43-bbf3-b1148237c601" />
+	 <img width="963" alt="image" src="https://github.com/user-attachments/assets/a5cf1342-d4b6-4433-a137-84e98bbb3c73" />
+	 <img width="720" alt="image" src="https://github.com/user-attachments/assets/f71781d1-79eb-43f9-b5b0-634bacaba5ac" />
 
-6. 绑定你自己的域名
+7. Set API_TOKEN in Cloudflare Workers.
+   <img width="982" alt="image" src="https://github.com/user-attachments/assets/ed7f9665-883e-42ac-868c-e50e54c804db" />
+	 <img width="1009" alt="image" src="https://github.com/user-attachments/assets/1865735f-2f2a-450b-bcf7-186dc0fc3e83" />
+
+ 	 Step 7: Online random token generator: https://it-tools.tech/token-generator
+ 
+	 <img width="442" alt="image" src="https://github.com/user-attachments/assets/da882224-c1bd-4dd2-b468-f2951c1ddd6a" />
+
+8. Cloudflare provides a free domain for your worker, e.g., `your-worker-name.workers.dev`.
+	 <img width="1015" alt="image" src="https://github.com/user-attachments/assets/8a73ebb1-87eb-4e4d-9005-98e3616cd007" />
+
+   You can test it with cURL or [HTTPie](https://httpie.io/).
+   <img width="1082" alt="image" src="https://github.com/user-attachments/assets/332ca650-61df-477b-be9c-476d72643923" />
+
+
+9. Bind your own domain.
+
+	**This is required if you use the Duan Raycast extension, as *.workers.dev has TLS issues.**
+
+ 	For easy configuration, I recommend hosting your domain on Cloudflare. The images below illustrate how straightforward the setup process is.
+	<img width="1023" alt="image" src="https://github.com/user-attachments/assets/c5949dbe-6745-49e4-9dc5-c96f1a6612df" />
+ 	<img width="421" alt="image" src="https://github.com/user-attachments/assets/5cfd90f2-42b8-4afd-83f0-621ea5c89b96" />
+	<img width="418" alt="image" src="https://github.com/user-attachments/assets/ab0943d8-eefa-4e9f-a697-80f69cb4454a" />
+
+11. How to use it?
+    
+    The Duan extension in [Raycast](https://www.raycast.com/) is currently the only UI available.
+
+		A web interface isn't available yet. 🙃
 
 
 ### Development
@@ -81,7 +130,6 @@ You can test it with cURL or HTTPie.
 
 5. Initialize the database schema:
    ```bash
-   # 在远程应用 schema (用于 wrangler deploy)
    npx wrangler d1 execute prod-cf-d1-short-link --remote --file=./schema.sql
    ```
 
@@ -195,24 +243,6 @@ CREATE TABLE links (
     visit_count INTEGER DEFAULT 0
 );
 ```
-
-## 💸 Free Tier Usage
-
-This project is designed to operate completely within Cloudflare's free tier limits:
-
-### Cloudflare Workers Free Tier
-- 100,000 requests per day
-- Up to 10ms CPU time per invocation
-- 128MB memory limit
-- Available in all Cloudflare edge locations worldwide
-
-### Cloudflare D1 Database Free Tier
-- 5 million reads per day
-- 100,000 writes per day
-- 1GB storage
-- 100 databases per account
-
-For most personal or small business URL shorteners, these limits are more than sufficient. If you need to scale beyond these limits, Cloudflare offers affordable paid plans.
 
 ## 🤝 Contributing
 

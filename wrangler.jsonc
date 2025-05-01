@@ -4,7 +4,7 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "cf-d1-short-link",
+	"name": "duan-url-shortener",
 	"main": "src/index.ts",
 	"compatibility_date": "2025-04-29",
 	"observability": {
@@ -13,8 +13,8 @@
 	"d1_databases": [
 		{
 			"binding": "DB",
-			"database_name": "prod-cf-d1-short-link",
-			"database_id": "d433fa46-6fa9-45a0-8d25-a1df64ffb070"
+			"database_name": "duan-db",
+			"database_id": "c17dadac-1e8f-4674-9ae6-74d98625f419"
 		}
 	]
 	/**

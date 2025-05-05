@@ -37,7 +37,7 @@
 - Cloudflare account with Workers and D1 access
 - A domain name for your short links.
     - Optional for pure API usage, Cloudflare provides a *.workers.dev subdomain
-    - Necessary for Duan Raycast extension
+    - Necessary for [Duan Raycast extension](https://github.com/insv23/duan-raycast-extension)
 
 ### Installation
 
@@ -101,9 +101,9 @@
  	<img width="421" alt="image" src="https://github.com/user-attachments/assets/5cfd90f2-42b8-4afd-83f0-621ea5c89b96" />
 	<img width="418" alt="image" src="https://github.com/user-attachments/assets/ab0943d8-eefa-4e9f-a697-80f69cb4454a" />
 
-11. How to use it?
+10. How to use it?
     
-    The Duan extension in [Raycast](https://www.raycast.com/) is currently the only UI available.
+    The [Duan extension](https://github.com/insv23/duan-raycast-extension) in [Raycast](https://www.raycast.com/) is currently the only UI available.
 
 		A web interface isn't available yet. 🙃
 

@@ -143,6 +143,39 @@
     npx wrangler deploy
     ```
 
+## 🧪 Hurl Tests
+
+This project includes a suite of Hurl tests for API and redirect behavior.
+
+What’s covered
+- Authentication: missing, malformed, invalid, and valid tokens (hurl/00_auth.hurl)
+- Create/Get/List/Duplicate: single link lifecycle and 409 conflict (hurl/10_create_get_list.hurl)
+- Update & Redirect Toggle: update url, description, is_enabled; 404 when disabled; 302 with correct Location when enabled (hurl/20_update_redirect_toggle.hurl)
+- Delete: delete then verify 404 (hurl/30_delete.hurl)
+- Batch Create: mixed success/errors (201) and all-invalid (400) with counts checks (hurl/40_batch.hurl)
+
+Prerequisites
+- Install Hurl (macOS):
+    brew install hurl
+- Configure variables file hurl/.env:
+    base_url=https://your-domain
+    api_token=your-api-token
+
+Run tests
+- Single file:
+    hurl --test --variables-file hurl/.env hurl/00_auth.hurl
+- Common flow:
+    hurl --test --variables-file hurl/.env hurl/00_auth.hurl
+    hurl --test --variables-file hurl/.env hurl/10_create_get_list.hurl
+    hurl --test --variables-file hurl/.env hurl/20_update_redirect_toggle.hurl
+    hurl --test --variables-file hurl/.env hurl/30_delete.hurl
+    hurl --test --variables-file hurl/.env hurl/40_batch.hurl
+
+Notes
+- Tests use fixed shortcodes (e.g., hurl10-cases-001). Re-running against the same database may cause expected-201 creations to fail due to existing rows. Run against a fresh or staging DB, or clean data between runs.
+- The redirect tests assert status 302 and the Location header; when disabled, redirect returns 404 with JSON error.
+- Avoid running against production unless you understand the data changes these tests perform.
+
 ## 🔌 API Reference
 
 ### Public Endpoints

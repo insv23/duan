@@ -2,6 +2,7 @@
 
 import type { Env } from "../types/env"; // 导入环境类型
 import { jsonResponse, errorResponse } from "../utils/response"; // 导入响应助手函数
+import { normalizeShortCode, isValidShortCode } from "../utils/shortcode";
 import type { IRequest } from "itty-router"; // 导入 itty-router 的请求类型，包含 params
 
 // 定义 PATCH /api/links/:shortcode 请求体的类型
@@ -18,12 +19,22 @@ export async function handleUpdateLink(
 	env: Env, // 导入并使用 Env 类型
 ): Promise<Response> {
 	// 1. 从 URL 获取 shortcode
-	const shortcodeToUpdate = request.params.shortcode;
+	const shortcodeParam = request.params.shortcode;
 
-	// 基本验证 shortcode 参数是否存在且不为空
-	if (!shortcodeToUpdate) {
+	// 基本验证 shortcode 参数是否存在且不为空，并统一格式
+	const normalizedShortcode = normalizeShortCode(shortcodeParam);
+	if (!normalizedShortcode) {
 		return errorResponse("Short code not provided in the URL path.", 400);
 	}
+
+	if (!isValidShortCode(normalizedShortcode)) {
+		return errorResponse("Invalid short_code format.", 400);
+	}
+
+	const displayShortcode =
+		typeof shortcodeParam === "string"
+			? shortcodeParam.trim()
+			: normalizedShortcode;
 
 	// 可以选择添加 shortcode 格式验证，但通常由 create 保证，
 	// 如果允许用户通过 PATCH 修改 shortcode 本身，则需要更严格的验证。
@@ -99,7 +110,7 @@ export async function handleUpdateLink(
 	const sql = `UPDATE links SET ${setClause} WHERE short_code = ?`;
 
 	// 将 shortcodeToUpdate 添加到绑定值的末尾，对应 WHERE 子句中的 ?
-	bindValues.push(shortcodeToUpdate);
+	bindValues.push(normalizedShortcode);
 
 	try {
 		// 6. 执行数据库更新操作
@@ -110,21 +121,21 @@ export async function handleUpdateLink(
 		// 7. 检查更新结果
 		if (result.meta.rows_written === 0) {
 			// 如果 rows_written 是 0，表示没有找到匹配的 short_code
-			return errorResponse(`Short code '${shortcodeToUpdate}' not found.`, 404);
+			return errorResponse(`Short code '${displayShortcode}' not found.`, 404);
 		}
 
 		// 8. 返回成功响应
 		// result.meta 可以包含一些操作信息，例如 rows_written
 		return jsonResponse(
 			{
-				message: `Link with short code '${shortcodeToUpdate}' updated successfully`,
+				message: `Link with short code '${displayShortcode}' updated successfully`,
 				// 可以选择返回更新后的部分信息，这里仅确认成功
 			},
 			200, // 200 OK is typical for PATCH success
 		);
 	} catch (e: unknown) {
 		// 9. 错误处理
-		console.error(`Error updating link '${shortcodeToUpdate}':`, e);
+		console.error(`Error updating link '${displayShortcode}':`, e);
 
 		// 通用数据库错误处理
 		return errorResponse("Internal server error during link update.", 500);

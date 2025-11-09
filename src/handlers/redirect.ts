@@ -2,16 +2,21 @@
 
 import type { Env } from "../types/env"; // 从 types 目录导入 Env 类型
 import { errorResponse } from "../utils/response"; // 从 utils 目录导入错误响应函数
+import { normalizeShortCode, isValidShortCode } from "../utils/shortcode";
 
 // 负责处理短码重定向的逻辑
 export async function handleRedirect(
 	{ params }: { params: { shortcode?: string } }, // itty-router 提供的参数结构
 	env: Env, // 导入并使用 Env 类型
 ): Promise<Response> {
-	const short_code = params.shortcode;
+	const shortCodeParam = params.shortcode;
 
-	//  short_code 格式验证，例如不允许包含 /
-	if (!short_code || short_code.includes("/")) {
+	const normalizedShortCode = normalizeShortCode(shortCodeParam);
+	if (!normalizedShortCode) {
+		return errorResponse("Invalid short_code format", 400); // Bad Request
+	}
+
+	if (!isValidShortCode(normalizedShortCode)) {
 		return errorResponse("Invalid short_code format", 400); // Bad Request
 	}
 
@@ -20,7 +25,7 @@ export async function handleRedirect(
 		const link = await env.DB.prepare(
 			"SELECT original_url, is_enabled FROM links WHERE short_code = ?",
 		)
-			.bind(short_code)
+			.bind(normalizedShortCode)
 			.first<{ original_url: string; is_enabled: number } | null>();
 
 		// 如果未找到链接或链接未启用
@@ -32,7 +37,7 @@ export async function handleRedirect(
 		await env.DB.prepare(
 			"UPDATE links SET last_visited_at = CURRENT_TIMESTAMP, visit_count = visit_count + 1 WHERE short_code = ?",
 		)
-			.bind(short_code)
+			.bind(normalizedShortCode)
 			.run();
 
 		// 执行 302 重定向

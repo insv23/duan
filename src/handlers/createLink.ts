@@ -2,6 +2,7 @@
 
 import type { Env } from "../types/env"; // 导入环境类型
 import { jsonResponse, errorResponse } from "../utils/response"; // 导入响应助手函数
+import { normalizeShortCode, isValidShortCode } from "../utils/shortcode";
 
 // 定义创建链接请求体的接口（放在这里或单独文件）
 interface CreateLinkRequestBody {
@@ -33,21 +34,12 @@ export async function handleCreateLink(
 		);
 	}
 
-	const trimmedShortCode = short_code.trim();
-	const normalizedShortCode = trimmedShortCode.toLowerCase();
-
-	if (!trimmedShortCode) {
+	const normalizedShortCode = normalizeShortCode(short_code);
+	if (!normalizedShortCode) {
 		return errorResponse("short_code cannot be empty.", 400);
 	}
 
-	// 简单验证 short_code 格式
-	// 不允许包含 /
-	if (trimmedShortCode.includes("/")) {
-		return errorResponse("short_code cannot contain slashes", 400);
-	}
-	// 只允许字母数字_-等
-	const shortCodeRegex = /^[a-zA-Z0-9_-]+$/;
-	if (!shortCodeRegex.test(trimmedShortCode)) {
+	if (!isValidShortCode(normalizedShortCode)) {
 		return errorResponse(
 			"Invalid short_code format. Only alphanumeric characters, hyphens, and underscores are allowed.",
 			400,

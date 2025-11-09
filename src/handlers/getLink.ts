@@ -2,6 +2,7 @@
 
 import type { Env } from "../types/env";
 import { jsonResponse, errorResponse } from "../utils/response";
+import { normalizeShortCode, isValidShortCode } from "../utils/shortcode";
 import type { IRequest } from "itty-router";
 
 // 处理获取指定 shortcode 链接的 GET 请求
@@ -12,17 +13,20 @@ export async function handleGetLink(
 	// 1. 从路径参数中获取 shortcode
 	const shortcodeParam = request.params.shortcode;
 
-	// 2. 验证 shortcode 是否存在
-	if (!shortcodeParam) {
+	// 2. 验证 shortcode 是否存在，并归一化
+	const normalizedShortcode = normalizeShortCode(shortcodeParam);
+	if (!normalizedShortcode) {
 		return errorResponse("Missing shortcode in path.", 400);
 	}
 
-	const trimmedShortcode = shortcodeParam.trim();
-	if (!trimmedShortcode) {
-		return errorResponse("Missing shortcode in path.", 400);
+	if (!isValidShortCode(normalizedShortcode)) {
+		return errorResponse("Invalid short_code format.", 400);
 	}
 
-	const normalizedShortcode = trimmedShortcode.toLowerCase();
+	const displayShortcode =
+		typeof shortcodeParam === "string"
+			? shortcodeParam.trim()
+			: normalizedShortcode;
 
 	try {
 		// 3. 从数据库中获取链接
@@ -35,7 +39,7 @@ export async function handleGetLink(
 		// 4. 检查是否找到了链接
 		if (!results || results.length === 0) {
 			return errorResponse(
-				`Link with shortcode '${trimmedShortcode}' not found.`,
+				`Link with shortcode '${displayShortcode}' not found.`,
 				404,
 			);
 		}

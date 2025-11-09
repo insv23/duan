@@ -2,6 +2,7 @@
 
 import type { Env } from "../types/env";
 import { jsonResponse, errorResponse } from "../utils/response";
+import { normalizeShortCode, isValidShortCode } from "../utils/shortcode";
 
 // 定义批量创建链接请求体的接口
 interface CreateBatchLinksRequestItem {
@@ -40,12 +41,6 @@ function isValidUrl(url: string): boolean {
 	} catch (e) {
 		return false;
 	}
-}
-
-// 验证短码格式
-function isValidShortcode(shortcode: string): boolean {
-	const shortCodeRegex = /^[a-zA-Z0-9_-]+$/;
-	return !shortcode.includes("/") && shortCodeRegex.test(shortcode);
 }
 
 // 处理批量创建短链接的 POST 请求
@@ -101,16 +96,34 @@ export async function handleCreateBatchLinks(
 		}
 
 		// 处理短码
-		let shortCode = item.short_code;
+		const originalShortCode = item.short_code;
+		let normalizedShortCode: string;
 
-		// 如果没有提供短码，生成随机短码
-		if (!shortCode) {
-			shortCode = generateRandomShortcode();
-		} else if (!isValidShortcode(shortCode)) {
-			// 验证短码格式
+		if (originalShortCode == null) {
+			const generated = generateRandomShortcode();
+			// biome-ignore lint/style/noNonNullAssertion: generated is not null
+			normalizedShortCode = normalizeShortCode(generated)!;
+		} else {
+			const normalized = normalizeShortCode(originalShortCode);
+			if (!normalized) {
+				response.errors.push({
+					original_url: item.url,
+					short_code: originalShortCode,
+					error: "short_code cannot be empty.",
+				});
+				continue;
+			}
+
+			normalizedShortCode = normalized;
+		}
+
+		if (!isValidShortCode(normalizedShortCode)) {
 			response.errors.push({
 				original_url: item.url,
-				short_code: shortCode,
+				short_code:
+					originalShortCode !== undefined
+						? originalShortCode.trim()
+						: normalizedShortCode,
 				error:
 					"Invalid short_code format. Only alphanumeric characters, hyphens, and underscores are allowed.",
 			});
@@ -126,15 +139,15 @@ export async function handleCreateBatchLinks(
 			await env.DB.prepare(
 				"INSERT INTO links (short_code, original_url, description, is_enabled) VALUES (?, ?, ?, ?)",
 			)
-				.bind(shortCode, item.url, descriptionToBind, isEnabled)
+				.bind(normalizedShortCode, item.url, descriptionToBind, isEnabled)
 				.run();
 
 			// 构建完整的短链接 URL
-			const shortUrl = `${origin}/${shortCode}`;
+			const shortUrl = `${origin}/${normalizedShortCode}`;
 
 			// 添加到成功列表
 			response.success.push({
-				short_code: shortCode,
+				short_code: normalizedShortCode,
 				short_url: shortUrl,
 				original_url: item.url,
 				description: descriptionToBind,
@@ -149,12 +162,12 @@ export async function handleCreateBatchLinks(
 				typeof e.message === "string" &&
 				e.message.includes("UNIQUE constraint failed")
 			) {
-				errorMessage = `Short_code '${shortCode}' already exists`;
+				errorMessage = `Short_code '${normalizedShortCode}' already exists`;
 			}
 
 			response.errors.push({
 				original_url: item.url,
-				short_code: shortCode,
+				short_code: normalizedShortCode,
 				error: errorMessage,
 			});
 		}

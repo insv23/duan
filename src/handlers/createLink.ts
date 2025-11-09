@@ -33,14 +33,21 @@ export async function handleCreateLink(
 		);
 	}
 
+	const trimmedShortCode = short_code.trim();
+	const normalizedShortCode = trimmedShortCode.toLowerCase();
+
+	if (!trimmedShortCode) {
+		return errorResponse("short_code cannot be empty.", 400);
+	}
+
 	// 简单验证 short_code 格式
 	// 不允许包含 /
-	if (short_code.includes("/")) {
+	if (trimmedShortCode.includes("/")) {
 		return errorResponse("short_code cannot contain slashes", 400);
 	}
 	// 只允许字母数字_-等
 	const shortCodeRegex = /^[a-zA-Z0-9_-]+$/;
-	if (!shortCodeRegex.test(short_code)) {
+	if (!shortCodeRegex.test(trimmedShortCode)) {
 		return errorResponse(
 			"Invalid short_code format. Only alphanumeric characters, hyphens, and underscores are allowed.",
 			400,
@@ -66,18 +73,18 @@ export async function handleCreateLink(
 		const result = await env.DB.prepare(
 			"INSERT INTO links (short_code, original_url, description, is_enabled) VALUES (?, ?, ?, ?)",
 		)
-			.bind(short_code, url, descriptionToBind, isEnabled)
+			.bind(normalizedShortCode, url, descriptionToBind, isEnabled)
 			.run();
 
 		// 构建完整的短链接 URL
-		const shortUrl = `${new URL(request.url).origin}/${short_code}`;
+		const shortUrl = `${new URL(request.url).origin}/${normalizedShortCode}`;
 
 		// 5. 返回成功响应
 		// result.meta 可以包含一些操作信息，例如 rows_written
 		return jsonResponse(
 			{
 				message: "Link created successfully",
-				short_code: short_code,
+				short_code: normalizedShortCode,
 				short_url: shortUrl,
 				original_url: url,
 			},
@@ -93,7 +100,10 @@ export async function handleCreateLink(
 			e.message.includes("UNIQUE constraint failed")
 		) {
 			// 409 Conflict 表示资源（短码）已存在
-			return errorResponse(`Short_code '${short_code}' already exists.`, 409);
+			return errorResponse(
+				`Short_code '${normalizedShortCode}' already exists.`,
+				409,
+			);
 		}
 
 		// 处理其他未知错误

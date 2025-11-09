@@ -10,25 +10,32 @@ export async function handleGetLink(
 	env: Env,
 ): Promise<Response> {
 	// 1. 从路径参数中获取 shortcode
-	const shortcode = request.params.shortcode;
+	const shortcodeParam = request.params.shortcode;
 
 	// 2. 验证 shortcode 是否存在
-	if (!shortcode) {
+	if (!shortcodeParam) {
 		return errorResponse("Missing shortcode in path.", 400);
 	}
+
+	const trimmedShortcode = shortcodeParam.trim();
+	if (!trimmedShortcode) {
+		return errorResponse("Missing shortcode in path.", 400);
+	}
+
+	const normalizedShortcode = trimmedShortcode.toLowerCase();
 
 	try {
 		// 3. 从数据库中获取链接
 		const { results } = await env.DB.prepare(
 			"SELECT * FROM links WHERE short_code = ?",
 		)
-			.bind(shortcode)
+			.bind(normalizedShortcode)
 			.all();
 
 		// 4. 检查是否找到了链接
 		if (!results || results.length === 0) {
 			return errorResponse(
-				`Link with shortcode '${shortcode}' not found.`,
+				`Link with shortcode '${trimmedShortcode}' not found.`,
 				404,
 			);
 		}
